@@ -78,7 +78,8 @@ export interface ShoppingItem {
 export interface Recipe {
   id: string;
   name: string;
-  season: Season;
+  season?: Season; // legacy single season support
+  seasons?: Season[]; // multi-season support (e.g. ['autumn', 'winter'])
   category: 'Primo' | 'Secondo' | 'Piatto Unico' | 'Contorno' | 'Lievitato';
   prepTime: string;
   ingredients: string[];

@@ -17,6 +17,31 @@ export const SEASON_LABELS: Record<Season, { label: string; icon: string }> = {
   all_year: { label: 'Tutto l\'anno', icon: '✨' },
 };
 
+export function getRecipeSeasons(recipe: { season?: Season; seasons?: Season[] }): Season[] {
+  if (Array.isArray(recipe.seasons) && recipe.seasons.length > 0) {
+    return recipe.seasons;
+  }
+  if (recipe.season) {
+    return [recipe.season];
+  }
+  return ['all_year'];
+}
+
+export function formatRecipeSeasons(recipe: { season?: Season; seasons?: Season[] }): string {
+  const seasons = getRecipeSeasons(recipe);
+  if (seasons.includes('all_year') || seasons.length >= 4) {
+    return `${SEASON_LABELS.all_year.icon} ${SEASON_LABELS.all_year.label}`;
+  }
+  return seasons.map((s) => `${SEASON_LABELS[s]?.icon || ''} ${SEASON_LABELS[s]?.label || s}`).join(' · ');
+}
+
+export function isRecipeInSeason(recipe: { season?: Season; seasons?: Season[] }, targetSeason: Season | 'all'): boolean {
+  if (targetSeason === 'all') return true;
+  const seasons = getRecipeSeasons(recipe);
+  if (seasons.includes('all_year')) return true;
+  return seasons.includes(targetSeason);
+}
+
 export function getCurrentSeason(): Season {
   const month = new Date().getMonth(); // 0 = Jan, 9 = Oct
   if (month >= 2 && month <= 4) return 'spring';
@@ -38,12 +63,12 @@ export function getCurrentWeekId(d = new Date()): string {
   return `${target.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
 }
 
-const MONTH_NAMES_IT = [
+export const MONTH_NAMES_IT = [
   'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
   'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
 ];
 
-const MONTH_SHORT_IT = [
+export const MONTH_SHORT_IT = [
   'Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu',
   'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'
 ];

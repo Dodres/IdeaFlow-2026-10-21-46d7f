@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,6 +12,7 @@ import {
   CalendarDays,
   Calendar as CalendarIcon,
   SlidersHorizontal,
+  Filter,
 } from 'lucide-react';
 import { useHousehold } from '../../context/HouseholdContext.tsx';
 import { DayKey, MealType, MealSlot, Dish, Recipe, MealGroup, Person } from '../../types.ts';
@@ -20,6 +21,7 @@ import {
   getWeekRangeDisplay,
   getWeekDayDetails,
   normalizeMealSlot,
+  MONTH_SHORT_IT,
 } from '../../data/initialData.ts';
 import { AddDishModal, GroupOption } from './AddDishModal.tsx';
 import { CalendarPickerModal } from './CalendarPickerModal.tsx';
@@ -29,7 +31,7 @@ interface WeeklyMenuViewProps {
   onOpenAISuggest: () => void;
 }
 
-const DAY_KEYS: DayKey[] = ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'];
+const ALL_DAY_KEYS: DayKey[] = ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'];
 
 const DAY_NAMES: Record<DayKey, string> = {
   lun: 'Lunedì',
@@ -40,6 +42,27 @@ const DAY_NAMES: Record<DayKey, string> = {
   sab: 'Sabato',
   dom: 'Domenica',
 };
+
+const DAY_SHORT: Record<DayKey, string> = {
+  lun: 'Lun',
+  mar: 'Mar',
+  mer: 'Mer',
+  gio: 'Gio',
+  ven: 'Ven',
+  sab: 'Sab',
+  dom: 'Dom',
+};
+
+// Preset di sequenze giorni
+const PRESET_INTERVALS: { id: string; label: string; days: DayKey[] }[] = [
+  { id: 'sab_ven', label: 'Sabato ➔ Venerdì (7 gg)', days: ['sab', 'dom', 'lun', 'mar', 'mer', 'gio', 'ven'] },
+  { id: 'lun_dom', label: 'Lunedì ➔ Domenica (7 gg)', days: ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom'] },
+  { id: 'sab_mar', label: 'Sabato ➔ Martedì (4 gg)', days: ['sab', 'dom', 'lun', 'mar'] },
+  { id: 'lun_ven', label: 'Lunedì ➔ Venerdì (5 gg)', days: ['lun', 'mar', 'mer', 'gio', 'ven'] },
+  { id: 'weekend', label: 'Weekend (Ven-Dom)', days: ['ven', 'sab', 'dom'] },
+];
+
+const STORAGE_INTERVAL_KEY = 'menu_interval_days_preset';
 
 export const WeeklyMenuView: React.FC<WeeklyMenuViewProps> = ({ onOpenAISuggest }) => {
   const {
@@ -57,6 +80,37 @@ export const WeeklyMenuView: React.FC<WeeklyMenuViewProps> = ({ onOpenAISuggest 
   const currentRealWeek = getCurrentWeekId();
   const weekRange = getWeekRangeDisplay(activeWeekId);
   const dayDetails = getWeekDayDetails(activeWeekId);
+
+  // Selected visible days and order (default: Sabato -> Venerdì)
+  const [selectedDays, setSelectedDays] = useState<DayKey[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_INTERVAL_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return ['sab', 'dom', 'lun', 'mar', 'mer', 'gio', 'ven']; // Default sabato -> venerdì
+  });
+
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+
+  const handleSelectPreset = (days: DayKey[]) => {
+    setSelectedDays(days);
+    localStorage.setItem(STORAGE_INTERVAL_KEY, JSON.stringify(days));
+  };
+
+  const handleToggleDay = (day: DayKey) => {
+    let next: DayKey[];
+    if (selectedDays.includes(day)) {
+      if (selectedDays.length <= 1) return; // mantieni almeno 1 giorno
+      next = selectedDays.filter((d) => d !== day);
+    } else {
+      next = [...selectedDays, day];
+    }
+    setSelectedDays(next);
+    localStorage.setItem(STORAGE_INTERVAL_KEY, JSON.stringify(next));
+  };
 
   // Calendar picker modal state
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -218,19 +272,95 @@ export const WeeklyMenuView: React.FC<WeeklyMenuViewProps> = ({ onOpenAISuggest 
           )}
         </div>
 
-        {/* Suggestion AI button */}
-        <button
-          onClick={onOpenAISuggest}
-          className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl bg-app-primary text-white hover:opacity-90 transition-opacity active:scale-95 shadow-xs cursor-pointer"
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Consigliami piatti di stagione</span>
-        </button>
+        {/* Right Action buttons: Filter interval & AI */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
+            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer ${
+              isFilterPanelOpen || selectedDays.length < 7
+                ? 'bg-app-primary-light border-app-primary text-app-primary'
+                : 'bg-app-card border-app-subtle hover:bg-app-muted text-app-main'
+            }`}
+            title="Scegli i giorni o l'intervallo da mostrare"
+          >
+            <Filter className="w-3.5 h-3.5 text-app-primary" />
+            <span>
+              {selectedDays.length === 7 ? '7 giorni' : `${selectedDays.length} giorni`}
+            </span>
+          </button>
+
+          {/* Suggestion AI button */}
+          <button
+            onClick={onOpenAISuggest}
+            className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl bg-app-primary text-white hover:opacity-90 transition-opacity active:scale-95 shadow-xs cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Consigliami piatti</span>
+          </button>
+        </div>
       </div>
+
+      {/* Interval Days Selector Drawer / Panel */}
+      {isFilterPanelOpen && (
+        <div className="bg-app-card rounded-2xl border border-app-subtle p-3.5 sm:p-4 shadow-sm space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-app-subtle pb-2.5">
+            <div>
+              <span className="font-bold text-xs text-app-main block">
+                Intervallo & Giorni da mostrare ({selectedDays.length} selezionati)
+              </span>
+              <span className="text-[11px] text-app-muted">
+                Pianifica la settimana da Sabato a Venerdì, solo pochi giorni o personalizza a piacere
+              </span>
+            </div>
+            {/* Quick preset chips */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              {PRESET_INTERVALS.map((preset) => {
+                const isActive =
+                  selectedDays.length === preset.days.length &&
+                  selectedDays.every((d, i) => d === preset.days[i]);
+                return (
+                  <button
+                    key={preset.id}
+                    onClick={() => handleSelectPreset(preset.days)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-app-primary text-white border-app-primary shadow-2xs'
+                        : 'bg-app-muted/60 text-app-muted hover:text-app-main border-app-subtle'
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Toggle specific days pills */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+            <span className="text-[11px] text-app-muted font-medium mr-1">Attiva/disattiva giorni:</span>
+            {ALL_DAY_KEYS.map((key) => {
+              const isSelected = selectedDays.includes(key);
+              return (
+                <button
+                  key={key}
+                  onClick={() => handleToggleDay(key)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border ${
+                    isSelected
+                      ? 'bg-app-primary-light border-app-primary text-app-primary font-bold shadow-2xs'
+                      : 'bg-app-muted/30 border-app-subtle text-app-muted hover:text-app-main'
+                  }`}
+                >
+                  {DAY_SHORT[key]} {isSelected && '✓'}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Week Schedule Grid */}
       <div className="space-y-4">
-        {DAY_KEYS.map((dayKey) => {
+        {selectedDays.map((dayKey) => {
           const detail = dayDetails[dayKey];
           const isToday = detail?.isToday;
 

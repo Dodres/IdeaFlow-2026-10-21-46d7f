@@ -928,6 +928,9 @@ export const HouseholdProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const existingSlot = household.menus[weekId]?.days[dayKey]?.[mealType];
     const groups = normalizeMealSlot(existingSlot, currentMembers);
 
+    // Find the dish being removed to clean up shopping list
+    const removedDish = groups.flatMap((g) => g.dishes).find((d) => d.id === dishId);
+
     const updatedGroups = groups.map((g) => {
       if (g.id === groupId) {
         return {
@@ -939,6 +942,80 @@ export const HouseholdProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     });
 
     await updateMealSlotGroups(weekId, dayKey, mealType, updatedGroups);
+
+    // Auto-mark shopping items for this dish as done if no other dish in ANY week needs them
+    if (removedDish && removedDish.name) {
+      setHousehold((prev) => {
+        // Collect all dish names still in menus (after removal)
+        const allRemainingDishNames = new Set<string>();
+        for (const wm of Object.values(prev.menus)) {
+          for (const day of Object.values(wm.days || {})) {
+            for (const mType of ['pranzo', 'cena'] as MealType[]) {
+              const slot = day[mType];
+              if (slot?.groups) {
+                for (const g of slot.groups) {
+                  for (const d of g.dishes) {
+                    if (d.id !== dishId) allRemainingDishNames.add(d.name);
+                  }
+                }
+              }
+            }
+          }
+        }
+        // Ingredients from removed dish that aren't needed by any other remaining dish
+        const removedIngredients = new Set(removedDish.ingredients || []);
+
+        // For each shopping item linked to this dish, check if ingredient is still needed
+        const updatedList = prev.shoppingList.map((item) => {
+          if (item.dishName === removedDish.name && removedIngredients.has(item.name) && !item.isDone) {
+            // Check if another dish still in the menu also uses this ingredient
+            const stillNeeded = prev.shoppingList.some(
+              (other) =>
+                other.id !== item.id &&
+                other.name.toLowerCase() === item.name.toLowerCase() &&
+                other.dishName !== removedDish.name &&
+                !other.isDone
+            );
+            if (!stillNeeded) {
+              return { ...item, isDone: true, checkedBy: 'Rimosso dal menu', checkedAt: new Date().toISOString() };
+            }
+          }
+          return item;
+        });
+
+        return { ...prev, shoppingList: updatedList };
+      });
+
+      // Persist to Firestore
+      try {
+        const snap = await getDoc(doc(db, 'households', householdCode));
+        if (snap.exists()) {
+          const data = snap.data() as any;
+          const updatedList = (data.shoppingList || []).map((item: any) => {
+            if (
+              item.dishName === removedDish.name &&
+              (removedDish.ingredients || []).includes(item.name) &&
+              !item.isDone
+            ) {
+              const stillNeeded = (data.shoppingList || []).some(
+                (other: any) =>
+                  other.id !== item.id &&
+                  other.name?.toLowerCase() === item.name?.toLowerCase() &&
+                  other.dishName !== removedDish.name &&
+                  !other.isDone
+              );
+              if (!stillNeeded) {
+                return { ...item, isDone: true, checkedBy: 'Rimosso dal menu', checkedAt: new Date().toISOString() };
+              }
+            }
+            return item;
+          });
+          await updateDoc(doc(db, 'households', householdCode), { shoppingList: updatedList });
+        }
+      } catch (err) {
+        console.warn('Could not persist shopping cleanup to Firestore:', err);
+      }
+    }
   };
 
   // Legacy wrappers for backward compatibility

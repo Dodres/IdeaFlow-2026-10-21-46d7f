@@ -13,10 +13,18 @@ import {
   Flame,
   X,
   Trash2,
+  Pencil,
 } from 'lucide-react';
 import { useHousehold } from '../../context/HouseholdContext.tsx';
 import { Recipe, Season, DayKey, MealType } from '../../types.ts';
-import { SEASON_LABELS, getCurrentSeason, getWeekRangeDisplay } from '../../data/initialData.ts';
+import {
+  SEASON_LABELS,
+  getCurrentSeason,
+  getWeekRangeDisplay,
+  getRecipeSeasons,
+  formatRecipeSeasons,
+  isRecipeInSeason,
+} from '../../data/initialData.ts';
 
 interface RecipesViewProps {
   onOpenAISuggest: () => void;
@@ -37,15 +45,16 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ onOpenAISuggest }) => 
   const [search, setSearch] = useState('');
   const [seasonFilter, setSeasonFilter] = useState<Season | 'all'>('all');
   const [isCreating, setIsCreating] = useState(false);
+  const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [scheduleRecipe, setScheduleRecipe] = useState<Recipe | null>(null);
 
-  // New recipe form
-  const [newName, setNewName] = useState('');
-  const [newSeason, setNewSeason] = useState<Season>(getCurrentSeason());
-  const [newCategory, setNewCategory] = useState<Recipe['category']>('Primo');
-  const [newPrepTime, setNewPrepTime] = useState('25 min');
-  const [newIngredientsStr, setNewIngredientsStr] = useState('');
-  const [newNotes, setNewNotes] = useState('');
+  // Recipe form state (used for create and edit)
+  const [formName, setFormName] = useState('');
+  const [formSeasons, setFormSeasons] = useState<Season[]>([getCurrentSeason()]);
+  const [formCategory, setFormCategory] = useState<Recipe['category']>('Primo');
+  const [formPrepTime, setFormPrepTime] = useState('25 min');
+  const [formIngredientsStr, setFormIngredientsStr] = useState('');
+  const [formNotes, setFormNotes] = useState('');
 
   // Schedule modal state
   const [schedDay, setSchedDay] = useState<DayKey>('lun');
@@ -98,35 +107,79 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ onOpenAISuggest }) => 
       const matchSearch =
         r.name.toLowerCase().includes(search.toLowerCase()) ||
         r.ingredients.some((i) => i.toLowerCase().includes(search.toLowerCase()));
-      const matchSeason = seasonFilter === 'all' || r.season === seasonFilter;
+      const matchSeason = isRecipeInSeason(r, seasonFilter);
       return matchSearch && matchSeason;
     });
   }, [household.recipes, search, seasonFilter]);
 
-  const handleCreateRecipe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newName.trim()) return;
+  const openCreateModal = () => {
+    setEditingRecipe(null);
+    setFormName('');
+    setFormSeasons([getCurrentSeason()]);
+    setFormCategory('Primo');
+    setFormPrepTime('25 min');
+    setFormIngredientsStr('');
+    setFormNotes('');
+    setIsCreating(true);
+  };
 
-    const ingArray = newIngredientsStr
+  const openEditModal = (recipe: Recipe) => {
+    setEditingRecipe(recipe);
+    setFormName(recipe.name);
+    setFormSeasons(getRecipeSeasons(recipe));
+    setFormCategory(recipe.category);
+    setFormPrepTime(recipe.prepTime || '25 min');
+    setFormIngredientsStr((recipe.ingredients || []).join(', '));
+    setFormNotes(recipe.notes || '');
+    setIsCreating(true);
+  };
+
+  const toggleSeasonInForm = (season: Season) => {
+    if (season === 'all_year') {
+      // If toggling all_year, set only all_year
+      setFormSeasons(['all_year']);
+      return;
+    }
+
+    setFormSeasons((prev) => {
+      // Remove all_year if previously selected
+      const withoutAllYear = prev.filter((s) => s !== 'all_year');
+      if (withoutAllYear.includes(season)) {
+        const remaining = withoutAllYear.filter((s) => s !== season);
+        return remaining.length === 0 ? ['all_year'] : remaining;
+      } else {
+        return [...withoutAllYear, season];
+      }
+    });
+  };
+
+  const handleSaveRecipeForm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formName.trim()) return;
+
+    const ingArray = formIngredientsStr
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean);
 
-    const recipe: Recipe = {
-      id: `rec_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
-      name: newName.trim(),
-      season: newSeason,
-      category: newCategory,
-      prepTime: newPrepTime.trim() || '20 min',
+    const safeSeasons = formSeasons.length > 0 ? formSeasons : (['all_year'] as Season[]);
+    const primarySeason = safeSeasons[0];
+
+    const recipeToSave: Recipe = {
+      id: editingRecipe ? editingRecipe.id : `rec_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
+      name: formName.trim(),
+      season: primarySeason,
+      seasons: safeSeasons,
+      category: formCategory,
+      prepTime: formPrepTime.trim() || '20 min',
       ingredients: ingArray,
-      notes: newNotes.trim() || undefined,
+      notes: formNotes.trim() || undefined,
+      lastPreparedDate: editingRecipe ? editingRecipe.lastPreparedDate : undefined,
     };
 
-    await saveRecipe(recipe);
+    await saveRecipe(recipeToSave);
     setIsCreating(false);
-    setNewName('');
-    setNewIngredientsStr('');
-    setNewNotes('');
+    setEditingRecipe(null);
   };
 
   const handleConfirmSchedule = async () => {
@@ -198,7 +251,7 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ onOpenAISuggest }) => 
           </div>
 
           <button
-            onClick={() => setIsCreating(true)}
+            onClick={openCreateModal}
             className="w-full sm:w-auto px-4 py-2 rounded-xl bg-app-card border border-app-subtle text-app-main hover:bg-app-muted transition-colors text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-4 h-4 text-app-primary" />
@@ -288,7 +341,7 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ onOpenAISuggest }) => 
                       {recipe.name}
                     </h3>
                     <div className="flex items-center gap-2 text-[11px] text-app-muted mt-1">
-                      <span>{SEASON_LABELS[recipe.season]?.icon} {SEASON_LABELS[recipe.season]?.label}</span>
+                      <span>{formatRecipeSeasons(recipe)}</span>
                       <span>·</span>
                       <span>{recipe.category}</span>
                       <span>·</span>
@@ -341,6 +394,14 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ onOpenAISuggest }) => 
                 </button>
 
                 <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => openEditModal(recipe)}
+                    className="p-1.5 rounded-lg border border-app-subtle hover:bg-app-muted text-app-muted hover:text-app-main transition-colors cursor-pointer"
+                    title="Modifica ricetta"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+
                   <button
                     onClick={() => {
                       if (window.confirm(`Sei sicuro di voler eliminare "${recipe.name}" dalle ricette?`)) {
@@ -507,56 +568,90 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ onOpenAISuggest }) => 
         </div>
       )}
 
-      {/* New Recipe Modal */}
+      {/* Create / Edit Recipe Modal */}
       {isCreating && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-app-card rounded-2xl border border-app-subtle shadow-xl w-full max-w-lg overflow-hidden p-5 space-y-4">
+          <div className="bg-app-card rounded-2xl border border-app-subtle shadow-xl w-full max-w-lg overflow-hidden p-5 space-y-4 max-h-[90vh] flex flex-col">
             <div className="flex items-center justify-between border-b border-app-subtle pb-3">
-              <h3 className="font-bold text-sm text-app-main">
-                Crea Nuova Ricetta
+              <h3 className="font-bold text-sm text-app-main flex items-center gap-2">
+                {editingRecipe ? <Pencil className="w-4 h-4 text-app-primary" /> : <Plus className="w-4 h-4 text-app-primary" />}
+                <span>{editingRecipe ? 'Modifica Ricetta' : 'Crea Nuova Ricetta'}</span>
               </h3>
               <button
-                onClick={() => setIsCreating(false)}
-                className="p-1 rounded-lg text-app-muted hover:text-app-main hover:bg-app-muted"
+                onClick={() => {
+                  setIsCreating(false);
+                  setEditingRecipe(null);
+                }}
+                className="p-1 rounded-lg text-app-muted hover:text-app-main hover:bg-app-muted cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateRecipe} className="space-y-3 text-xs">
+            <form onSubmit={handleSaveRecipeForm} className="space-y-4 text-xs overflow-y-auto flex-1 pr-1">
               <div>
                 <label className="font-semibold text-app-main block mb-1">Nome del piatto *</label>
                 <input
                   type="text"
                   required
                   placeholder="es. Orecchiette alle cime di rapa"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-app-subtle bg-app-card text-app-main outline-hidden"
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-app-subtle bg-app-card text-app-main outline-hidden focus:border-app-primary"
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                <div>
-                  <label className="font-semibold text-app-main block mb-1">Stagione</label>
-                  <select
-                    value={newSeason}
-                    onChange={(e) => setNewSeason(e.target.value as Season)}
-                    className="w-full px-2.5 py-1.5 rounded-lg border border-app-subtle bg-app-card text-app-main outline-hidden"
-                  >
-                    <option value="autumn">🍂 Autunno</option>
-                    <option value="winter">❄️ Inverno</option>
-                    <option value="spring">🌸 Primavera</option>
-                    <option value="summer">☀️ Estate</option>
-                    <option value="all_year">✨ Tutto l'anno</option>
-                  </select>
+              {/* Multi-season selector */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="font-semibold text-app-main block">
+                    Stagionalità (puoi selezionare più stagioni)
+                  </label>
+                  <span className="text-[10px] text-app-muted">
+                    {formSeasons.includes('all_year')
+                      ? 'Disponibile tutto l\'anno'
+                      : `${formSeasons.length} stagion${formSeasons.length === 1 ? 'e' : 'i'} selezionat${formSeasons.length === 1 ? 'a' : 'e'}`}
+                  </span>
                 </div>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
+                  {(
+                    [
+                      { key: 'autumn', label: 'Autunno', icon: '🍂' },
+                      { key: 'winter', label: 'Inverno', icon: '❄️' },
+                      { key: 'spring', label: 'Primavera', icon: '🌸' },
+                      { key: 'summer', label: 'Estate', icon: '☀️' },
+                      { key: 'all_year', label: 'Tutto l\'anno', icon: '✨' },
+                    ] as const
+                  ).map((s) => {
+                    const isSelected = formSeasons.includes(s.key);
+                    return (
+                      <button
+                        key={s.key}
+                        type="button"
+                        onClick={() => toggleSeasonInForm(s.key)}
+                        className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-app-primary text-white border-app-primary shadow-xs'
+                            : 'bg-app-muted border-app-subtle text-app-muted hover:text-app-main'
+                        }`}
+                      >
+                        <span>{s.icon}</span>
+                        <span>{s.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-[10px] text-app-muted mt-1">
+                  💡 Seleziona 2 o più stagioni per i piatti adatti a cavallo tra periodi (es. Autunno + Inverno) senza marcarli per tutto l'anno.
+                </p>
+              </div>
 
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="font-semibold text-app-main block mb-1">Portata</label>
                   <select
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value as any)}
+                    value={formCategory}
+                    onChange={(e) => setFormCategory(e.target.value as any)}
                     className="w-full px-2.5 py-1.5 rounded-lg border border-app-subtle bg-app-card text-app-main outline-hidden"
                   >
                     <option value="Primo">Primo</option>
@@ -572,8 +667,8 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ onOpenAISuggest }) => 
                   <input
                     type="text"
                     placeholder="es. 25 min"
-                    value={newPrepTime}
-                    onChange={(e) => setNewPrepTime(e.target.value)}
+                    value={formPrepTime}
+                    onChange={(e) => setFormPrepTime(e.target.value)}
                     className="w-full px-2.5 py-1.5 rounded-lg border border-app-subtle bg-app-card text-app-main outline-hidden"
                   />
                 </div>
@@ -586,8 +681,8 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ onOpenAISuggest }) => 
                 <textarea
                   rows={2}
                   placeholder="es. Orecchiette fresche, Cime di rapa, Acciughe sott'olio, Aglio, Peperoncino, Olio EVO"
-                  value={newIngredientsStr}
-                  onChange={(e) => setNewIngredientsStr(e.target.value)}
+                  value={formIngredientsStr}
+                  onChange={(e) => setFormIngredientsStr(e.target.value)}
                   className="w-full px-3 py-2 text-xs rounded-xl border border-app-subtle bg-app-card text-app-main outline-hidden"
                 />
               </div>
@@ -597,8 +692,8 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ onOpenAISuggest }) => 
                 <input
                   type="text"
                   placeholder="es. Saltare in padella con le acciughe sciolte..."
-                  value={newNotes}
-                  onChange={(e) => setNewNotes(e.target.value)}
+                  value={formNotes}
+                  onChange={(e) => setFormNotes(e.target.value)}
                   className="w-full px-3 py-2 text-xs rounded-xl border border-app-subtle bg-app-card text-app-main outline-hidden"
                 />
               </div>
@@ -606,17 +701,20 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ onOpenAISuggest }) => 
               <div className="flex justify-end gap-2 pt-3 border-t border-app-subtle">
                 <button
                   type="button"
-                  onClick={() => setIsCreating(false)}
-                  className="px-4 py-2 text-xs font-semibold text-app-muted hover:bg-app-muted rounded-xl"
+                  onClick={() => {
+                    setIsCreating(false);
+                    setEditingRecipe(null);
+                  }}
+                  className="px-4 py-2 text-xs font-semibold text-app-muted hover:bg-app-muted rounded-xl cursor-pointer"
                 >
                   Annulla
                 </button>
                 <button
                   type="submit"
-                  disabled={!newName.trim()}
-                  className="px-5 py-2 text-xs font-bold rounded-xl bg-app-primary text-white hover:opacity-90 disabled:opacity-40 shadow-xs"
+                  disabled={!formName.trim()}
+                  className="px-5 py-2 text-xs font-bold rounded-xl bg-app-primary text-white hover:opacity-90 disabled:opacity-40 shadow-xs cursor-pointer"
                 >
-                  Salva nel Ricettario
+                  {editingRecipe ? 'Salva Modifiche' : 'Salva nel Ricettario'}
                 </button>
               </div>
             </form>

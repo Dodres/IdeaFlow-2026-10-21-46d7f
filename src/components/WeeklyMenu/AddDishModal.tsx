@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Plus, Sparkles, BookOpen, Clock, Check } from 'lucide-react';
 import { useHousehold } from '../../context/HouseholdContext.tsx';
 import { Recipe, DayKey, MealType } from '../../types.ts';
-import { SEASON_LABELS, getCurrentSeason } from '../../data/initialData.ts';
+import { SEASON_LABELS, getCurrentSeason, formatRecipeSeasons } from '../../data/initialData.ts';
 
 export interface GroupOption {
   id: string;
@@ -196,7 +196,7 @@ export const AddDishModal: React.FC<AddDishModalProps> = ({
                             {recipe.name}
                           </div>
                           <div className="text-[11px] text-app-muted flex items-center gap-2 mt-0.5">
-                            <span>{SEASON_LABELS[recipe.season]?.icon} {SEASON_LABELS[recipe.season]?.label}</span>
+                            <span>{formatRecipeSeasons(recipe)}</span>
                             <span>·</span>
                             <span>{recipe.category}</span>
                             <span>·</span>

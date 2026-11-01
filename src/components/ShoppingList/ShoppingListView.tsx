@@ -20,6 +20,9 @@ import { DEPARTMENT_LABELS } from '../../data/initialData.ts';
 type GroupMode = 'reparto' | 'ricetta' | 'giorno';
 type FilterAssignee = 'all' | 'together' | 'mine' | 'partner';
 
+// Map: ingredient name (lowercase) → Set of distinct dishNames that still need it
+type IngredientRecipeMap = Map<string, Set<string>>;
+
 const DAY_ORDER: Record<string, number> = {
   lun: 1,
   mar: 2,
@@ -63,6 +66,19 @@ export const ShoppingListView: React.FC = () => {
     members.forEach((m) => map.set(m.id, m));
     return map;
   }, [members]);
+
+  // Map: ingredient name (lowercase) → distinct dishNames still pending (not done)
+  const ingredientRecipeMap = useMemo<IngredientRecipeMap>(() => {
+    const map = new Map<string, Set<string>>();
+    for (const item of household.shoppingList) {
+      if (!item.isDone && item.dishName && item.dishName !== 'Fuori lista') {
+        const key = item.name.toLowerCase();
+        if (!map.has(key)) map.set(key, new Set());
+        map.get(key)!.add(item.dishName);
+      }
+    }
+    return map;
+  }, [household.shoppingList]);
 
   // Filter items by assignee
   const filteredItems = useMemo(() => {
@@ -319,6 +335,7 @@ export const ShoppingListView: React.FC = () => {
               onToggle={toggleShoppingItem}
               onDelete={deleteShoppingItem}
               renderBadge={renderAssigneeBadge}
+              ingredientRecipeMap={ingredientRecipeMap}
             />
           )}
 
@@ -328,6 +345,7 @@ export const ShoppingListView: React.FC = () => {
               onToggle={toggleShoppingItem}
               onDelete={deleteShoppingItem}
               renderBadge={renderAssigneeBadge}
+              ingredientRecipeMap={ingredientRecipeMap}
             />
           )}
 
@@ -337,6 +355,7 @@ export const ShoppingListView: React.FC = () => {
               onToggle={toggleShoppingItem}
               onDelete={deleteShoppingItem}
               renderBadge={renderAssigneeBadge}
+              ingredientRecipeMap={ingredientRecipeMap}
             />
           )}
         </div>
@@ -353,6 +372,7 @@ interface SubRenderProps {
   onToggle: (id: string, isDone?: boolean) => void;
   onDelete: (id: string) => void;
   renderBadge: (assignee: Assignee) => React.ReactNode;
+  ingredientRecipeMap: IngredientRecipeMap;
 }
 
 const RenderByDepartment: React.FC<SubRenderProps> = ({
@@ -360,6 +380,7 @@ const RenderByDepartment: React.FC<SubRenderProps> = ({
   onToggle,
   onDelete,
   renderBadge,
+  ingredientRecipeMap,
 }) => {
   const departments: DepartmentCategory[] = [
     'ortofrutta',
@@ -402,6 +423,7 @@ const RenderByDepartment: React.FC<SubRenderProps> = ({
                   onToggle={onToggle}
                   onDelete={onDelete}
                   renderBadge={renderBadge}
+                  ingredientRecipeMap={ingredientRecipeMap}
                 />
               ))}
             </div>
@@ -418,6 +440,7 @@ const RenderByRecipe: React.FC<SubRenderProps> = ({
   onToggle,
   onDelete,
   renderBadge,
+  ingredientRecipeMap,
 }) => {
   const grouped = useMemo(() => {
     const map = new Map<string, ShoppingItem[]>();
@@ -456,6 +479,7 @@ const RenderByRecipe: React.FC<SubRenderProps> = ({
                 onToggle={onToggle}
                 onDelete={onDelete}
                 renderBadge={renderBadge}
+                ingredientRecipeMap={ingredientRecipeMap}
               />
             ))}
           </div>
@@ -471,6 +495,7 @@ const RenderByDay: React.FC<SubRenderProps> = ({
   onToggle,
   onDelete,
   renderBadge,
+  ingredientRecipeMap,
 }) => {
   const grouped = useMemo(() => {
     const map = new Map<string, ShoppingItem[]>();
@@ -517,6 +542,7 @@ const RenderByDay: React.FC<SubRenderProps> = ({
                   onToggle={onToggle}
                   onDelete={onDelete}
                   renderBadge={renderBadge}
+                  ingredientRecipeMap={ingredientRecipeMap}
                 />
               ))}
             </div>
@@ -533,6 +559,7 @@ interface ShoppingRowProps {
   onToggle: (id: string, isDone?: boolean) => void;
   onDelete: (id: string) => void;
   renderBadge: (assignee: Assignee) => React.ReactNode;
+  ingredientRecipeMap: IngredientRecipeMap;
 }
 
 const ShoppingRow: React.FC<ShoppingRowProps> = ({
@@ -540,7 +567,10 @@ const ShoppingRow: React.FC<ShoppingRowProps> = ({
   onToggle,
   onDelete,
   renderBadge,
+  ingredientRecipeMap,
 }) => {
+  const sharedRecipeCount = ingredientRecipeMap.get(item.name.toLowerCase())?.size ?? 0;
+
   return (
     <div
       onClick={() => onToggle(item.id)}
@@ -568,12 +598,17 @@ const ShoppingRow: React.FC<ShoppingRowProps> = ({
           >
             {item.name}
           </span>
-          <div className="flex items-center gap-2 text-[11px] text-app-muted mt-0.5">
+          <div className="flex items-center gap-2 text-[11px] text-app-muted mt-0.5 flex-wrap">
             {item.dishName && item.dishName !== 'Fuori lista' && (
               <>
                 <span className="truncate max-w-[150px]">Per: {item.dishName}</span>
                 <span>·</span>
               </>
+            )}
+            {!item.isDone && sharedRecipeCount >= 2 && (
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 font-semibold text-[10px]">
+                🍽️ Serve in {sharedRecipeCount} ricette
+              </span>
             )}
             {item.isDone && item.checkedBy && (
               <span className="text-emerald-700 dark:text-emerald-400 font-medium">
