@@ -16,6 +16,9 @@ import {
   Trash2,
   MapPin,
   Building,
+  Edit2,
+  Save,
+  X,
 } from 'lucide-react';
 import { useHousehold } from '../../context/HouseholdContext.tsx';
 import { ColorTheme, DisplayMode } from '../../types.ts';
@@ -47,7 +50,13 @@ export const SettingsView: React.FC = () => {
     loginWithGoogle,
     logout,
     setIsShareModalOpen,
+    updateUserProfileName,
   } = useHousehold();
+
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState('');
+  const [isEditingMemberId, setIsEditingMemberId] = useState<string | null>(null);
+  const [editingMemberName, setEditingMemberName] = useState('');
 
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -181,7 +190,54 @@ export const SettingsView: React.FC = () => {
               )}
               <div>
                 <div className="font-bold text-sm text-app-main flex items-center gap-2">
-                  <span>{user.displayName}</span>
+                  {isEditingName ? (
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        value={editedName}
+                        onChange={(e) => setEditedName(e.target.value)}
+                        placeholder="Il tuo nome..."
+                        className="px-2 py-0.5 rounded-lg border border-app-primary bg-app-card text-xs font-bold text-app-main outline-hidden"
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (editedName.trim()) {
+                            await updateUserProfileName(editedName);
+                            setIsEditingName(false);
+                          }
+                        }}
+                        className="p-1 rounded-md bg-app-primary text-white hover:opacity-90 cursor-pointer"
+                        title="Salva nome"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingName(false)}
+                        className="p-1 rounded-md bg-app-muted text-app-muted hover:text-app-main cursor-pointer"
+                        title="Annulla"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <span>{user.displayName}</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditedName(user.displayName || '');
+                          setIsEditingName(true);
+                        }}
+                        className="p-1 rounded-md text-app-muted hover:text-app-primary hover:bg-app-primary-light transition-colors cursor-pointer"
+                        title="Modifica il tuo nome visualizzato"
+                      >
+                        <Edit2 className="w-3 h-3" />
+                      </button>
+                    </>
+                  )}
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-semibold">
                     Connesso
                   </span>
@@ -682,13 +738,63 @@ export const SettingsView: React.FC = () => {
                       : 'border-app-subtle bg-app-card hover:bg-app-muted'
                   }`}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <span className="text-2xl">{person.avatar}</span>
-                    <div className="min-w-0">
-                      <span className={`font-bold text-xs block truncate ${isActive ? 'text-app-primary' : 'text-app-main'}`}>
-                        {person.name}
-                      </span>
-                      <span className="text-[10px] text-app-muted">
+                    <div className="min-w-0 flex-1">
+                      {isEditingMemberId === person.id ? (
+                        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                          <input
+                            type="text"
+                            value={editingMemberName}
+                            onChange={(e) => setEditingMemberName(e.target.value)}
+                            className="px-2 py-0.5 rounded border border-app-primary bg-app-card text-xs font-bold text-app-main outline-hidden w-28"
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (editingMemberName.trim()) {
+                                await updateMember(person.id, editingMemberName);
+                                if (person.id === user?.uid) {
+                                  await updateUserProfileName(editingMemberName);
+                                }
+                                setIsEditingMemberId(null);
+                              }
+                            }}
+                            className="p-1 rounded bg-app-primary text-white cursor-pointer"
+                            title="Salva"
+                          >
+                            <Save className="w-3 h-3" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIsEditingMemberId(null)}
+                            className="p-1 rounded bg-app-muted text-app-muted cursor-pointer"
+                            title="Annulla"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <span className={`font-bold text-xs truncate ${isActive ? 'text-app-primary' : 'text-app-main'}`}>
+                            {person.name}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsEditingMemberId(person.id);
+                              setEditingMemberName(person.name);
+                            }}
+                            className="p-1 text-app-muted hover:text-app-primary rounded cursor-pointer transition-colors"
+                            title="Modifica nome persona"
+                          >
+                            <Edit2 className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+                      )}
+                      <span className="text-[10px] text-app-muted block">
                         {isActive ? 'Attivo su questo telefono' : 'Tocca per attivare'}
                       </span>
                     </div>

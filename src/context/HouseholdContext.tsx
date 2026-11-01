@@ -105,7 +105,9 @@ interface HouseholdContextValue {
     dishId: string
   ) => Promise<void>;
   toggleMealSlotType: (weekId: string, dayKey: DayKey, mealType: MealType) => Promise<void>;
+  updateUserProfileName: (newName: string) => Promise<void>;
   saveRecipe: (recipe: Recipe) => Promise<void>;
+  deleteRecipe: (recipeId: string) => Promise<void>;
   recordRecipePrepared: (recipeId: string, dateStr?: string) => Promise<void>;
 }
 
@@ -1164,20 +1166,78 @@ export const HouseholdProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  const updateUserProfileName = async (newName: string) => {
+    const trimmed = newName.trim();
+    if (!trimmed) return;
+
+    if (user) {
+      const updatedUser: AppUser = {
+        ...user,
+        displayName: trimmed,
+      };
+      setUser(updatedUser);
+      try {
+        sessionStorage.setItem('app_user_session', JSON.stringify(updatedUser));
+      } catch {}
+
+      try {
+        await updateDoc(doc(db, 'users', user.uid), {
+          displayName: trimmed,
+          updatedAt: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.warn('Could not update user name in Firestore:', err);
+      }
+
+      // Also update name in household members if matching
+      await updateHousehold((prev) => ({
+        ...prev,
+        members: (prev.members || []).map((m) =>
+          m.id === user.uid || m.name === user.displayName ? { ...m, name: trimmed } : m
+        ),
+      }));
+    } else {
+      // If guest or no user, update first member or active role
+      const targetId = currentRole && currentRole !== 'guest' ? currentRole : members[0]?.id;
+      if (targetId) {
+        await updateMember(targetId, trimmed);
+      }
+    }
+  };
+
   // Recipe methods
   const saveRecipe = async (recipe: Recipe) => {
+    await updateHousehold((prev) => {
+      const exists = prev.recipes.some((r) => r.id === recipe.id);
+      const nextRecipes = exists
+        ? prev.recipes.map((r) => (r.id === recipe.id ? recipe : r))
+        : [recipe, ...prev.recipes];
+      return { ...prev, recipes: nextRecipes };
+    });
+
     try {
-      const res = await fetch(`/api/households/${householdCode}/recipes`, {
+      await fetch(`/api/households/${householdCode}/recipes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(recipe),
       });
-      if (res.ok) {
-        const data = await res.json();
-        setHousehold((prev) => ({ ...prev, recipes: data.recipes }));
-      }
     } catch (err) {
       console.error('Save recipe error:', err);
+    }
+  };
+
+  const deleteRecipe = async (recipeId: string) => {
+    await updateHousehold((prev) => ({
+      ...prev,
+      recipes: (prev.recipes || []).filter((r) => r.id !== recipeId),
+    }));
+
+    try {
+      await fetch(`/api/households/${householdCode}/recipes/${recipeId}`, {
+        method: 'DELETE',
+      });
+    } catch (err) {
+      console.error('Delete recipe error:', err);
     }
   };
 
@@ -1231,7 +1291,9 @@ export const HouseholdProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       removeDishFromSlot,
       toggleMealSlotType,
       saveRecipe,
+      deleteRecipe,
       recordRecipePrepared,
+      updateUserProfileName,
       user,
       isAuthLoading,
       isShareModalOpen,

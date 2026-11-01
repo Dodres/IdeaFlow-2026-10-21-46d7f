@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Flame,
   X,
+  Trash2,
 } from 'lucide-react';
 import { useHousehold } from '../../context/HouseholdContext.tsx';
 import { Recipe, Season, DayKey, MealType } from '../../types.ts';
@@ -26,6 +27,7 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ onOpenAISuggest }) => 
     household,
     members,
     saveRecipe,
+    deleteRecipe,
     recordRecipePrepared,
     addDishToSlot,
     addMultipleShoppingItems,
@@ -339,6 +341,18 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ onOpenAISuggest }) => 
                 </button>
 
                 <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`Sei sicuro di voler eliminare "${recipe.name}" dalle ricette?`)) {
+                        deleteRecipe(recipe.id);
+                      }
+                    }}
+                    className="p-1.5 rounded-lg border border-app-subtle hover:bg-rose-50 dark:hover:bg-rose-950/40 text-app-muted hover:text-rose-600 transition-colors cursor-pointer"
+                    title="Elimina ricetta"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+
                   <button
                     onClick={() => {
                       addMultipleShoppingItems(
