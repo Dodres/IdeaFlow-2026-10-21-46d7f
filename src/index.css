@@ -1,0 +1,182 @@
+@import "tailwindcss";
+
+:root {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+
+  /* Salvia (Default) */
+  --primary: #446850;
+  --primary-hover: #375441;
+  --primary-light: #EBF2EC;
+  --primary-border: #C8DDCF;
+  --accent: #E58752;
+  
+  --bg-main: #FBFBF9;
+  --bg-card: #FFFFFF;
+  --bg-muted: #F3F4F1;
+  --text-main: #1C2420;
+  --text-muted: #647067;
+  --border-subtle: #E2E6E2;
+}
+
+/* Palette: Terracotta */
+[data-theme="terracotta"] {
+  --primary: #BC5434;
+  --primary-hover: #9E4327;
+  --primary-light: #FBEFEA;
+  --primary-border: #F3D3C6;
+  --accent: #E5A84B;
+  
+  --bg-main: #FCFAF8;
+  --bg-card: #FFFFFF;
+  --bg-muted: #F5EFEB;
+  --text-main: #271E1B;
+  --text-muted: #74645E;
+  --border-subtle: #EBE1DC;
+}
+
+/* Palette: Mirtillo (Deep Blue) */
+[data-theme="mirtillo"] {
+  --primary: #295384;
+  --primary-hover: #1D3D63;
+  --primary-light: #EDF3FA;
+  --primary-border: #C9DBEE;
+  --accent: #DF744A;
+  
+  --bg-main: #FAFBFC;
+  --bg-card: #FFFFFF;
+  --bg-muted: #F0F3F7;
+  --text-main: #18222E;
+  --text-muted: #627082;
+  --border-subtle: #DEE4EC;
+}
+
+/* Palette: Avocado (Olive) */
+[data-theme="avocado"] {
+  --primary: #596B36;
+  --primary-hover: #45532A;
+  --primary-light: #F0F4E8;
+  --primary-border: #D5DFC1;
+  --accent: #CC7B39;
+  
+  --bg-main: #FAFBF7;
+  --bg-card: #FFFFFF;
+  --bg-muted: #F2F4EC;
+  --text-main: #20241A;
+  --text-muted: #6B725E;
+  --border-subtle: #E1E6D7;
+}
+
+/* Palette: Monocromatico (Slate) */
+[data-theme="slate"] {
+  --primary: #334155;
+  --primary-hover: #1E293B;
+  --primary-light: #F1F5F9;
+  --primary-border: #CBD5E1;
+  --accent: #0EA5E9;
+  
+  --bg-main: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --bg-muted: #F1F5F9;
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --border-subtle: #E2E8F0;
+}
+
+/* Dark Mode Overrides */
+.dark {
+  --bg-main: #121614;
+  --bg-card: #1B211E;
+  --bg-muted: #242C28;
+  --text-main: #F0F4F1;
+  --text-muted: #9BA89F;
+  --border-subtle: #2C3731;
+}
+
+.dark[data-theme="salvia"] {
+  --primary: #6B9A7A;
+  --primary-hover: #5A8568;
+  --primary-light: #1D2A22;
+  --primary-border: #2C4234;
+}
+
+.dark[data-theme="terracotta"] {
+  --bg-main: #171210;
+  --bg-card: #231B18;
+  --bg-muted: #2E2420;
+  --text-main: #F9EFEB;
+  --text-muted: #B5A49D;
+  --border-subtle: #3A2E29;
+  --primary: #E07352;
+  --primary-hover: #C65E3E;
+  --primary-light: #2E1B15;
+  --primary-border: #4D2D23;
+}
+
+.dark[data-theme="mirtillo"] {
+  --bg-main: #0E131A;
+  --bg-card: #151D28;
+  --bg-muted: #1E2938;
+  --text-main: #EDF3FA;
+  --text-muted: #8E9EAF;
+  --border-subtle: #253346;
+  --primary: #4A7BB5;
+  --primary-hover: #396396;
+  --primary-light: #152233;
+  --primary-border: #233956;
+}
+
+.dark[data-theme="avocado"] {
+  --bg-main: #13160F;
+  --bg-card: #1D2117;
+  --bg-muted: #272C1E;
+  --text-main: #F4F7EB;
+  --text-muted: #A3AA94;
+  --border-subtle: #343B27;
+  --primary: #839D52;
+  --primary-hover: #6F8643;
+  --primary-light: #232B16;
+  --primary-border: #3A4625;
+}
+
+.dark[data-theme="slate"] {
+  --bg-main: #0B0F17;
+  --bg-card: #151B26;
+  --bg-muted: #1E2636;
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --border-subtle: #293548;
+  --primary: #64748B;
+  --primary-hover: #475569;
+  --primary-light: #1E293B;
+  --primary-border: #334155;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Custom utility colors */
+.bg-app-main { background-color: var(--bg-main); }
+.bg-app-card { background-color: var(--bg-card); }
+.bg-app-muted { background-color: var(--bg-muted); }
+.bg-app-primary { background-color: var(--primary); }
+.bg-app-primary-light { background-color: var(--primary-light); }
+
+.text-app-main { color: var(--text-main); }
+.text-app-muted { color: var(--text-muted); }
+.text-app-primary { color: var(--primary); }
+
+.border-app-subtle { border-color: var(--border-subtle); }
+.border-app-primary { border-color: var(--primary); }
+.border-app-primary-border { border-color: var(--primary-border); }
+
+/* Focus styles */
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}

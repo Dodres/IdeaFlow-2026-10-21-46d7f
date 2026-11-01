@@ -1,0 +1,701 @@
+{
+  "CASA01": {
+    "code": "CASA01",
+    "name": "Casa Nostra",
+    "members": [
+      {
+        "id": "daniele",
+        "name": "Daniele",
+        "avatar": "👨‍🍳"
+      }
+    ],
+    "users": {
+      "daniele": {
+        "name": "Daniele",
+        "avatar": "👨‍🍳"
+      },
+      "partner": {
+        "name": "Partner",
+        "avatar": "👩‍🌾"
+      }
+    },
+    "houses": [
+      {
+        "id": "casa_daniele",
+        "name": "Casa Daniele",
+        "icon": "🏠"
+      },
+      {
+        "id": "casa_partner",
+        "name": "Casa Partner",
+        "icon": "🏡"
+      }
+    ],
+    "activeWeekId": "2026-W43",
+    "menus": {
+      "2026-W43": {
+        "weekId": "2026-W43",
+        "days": {
+          "lun": {
+            "dayKey": "lun",
+            "dayLabel": "Lunedì",
+            "pranzo": {
+              "type": "together",
+              "togetherDishes": [
+                {
+                  "id": "d_lun_p",
+                  "name": "Pasta al Pesto Genovese e Pomodorini",
+                  "recipeId": "rec_4"
+                }
+              ],
+              "danieleDishes": [],
+              "partnerDishes": []
+            },
+            "cena": {
+              "type": "together",
+              "togetherDishes": [
+                {
+                  "id": "d_lun_c",
+                  "name": "Filetto di Salmone al Forno con Patate",
+                  "recipeId": "rec_3"
+                }
+              ],
+              "danieleDishes": [],
+              "partnerDishes": []
+            }
+          },
+          "mar": {
+            "dayKey": "mar",
+            "dayLabel": "Martedì",
+            "pranzo": {
+              "type": "separate",
+              "togetherDishes": [],
+              "danieleDishes": [
+                {
+                  "id": "d_mar_pd",
+                  "name": "Insalata di Riso ricca",
+                  "notes": "Preparata la sera prima"
+                }
+              ],
+              "partnerDishes": [
+                {
+                  "id": "d_mar_pp",
+                  "name": "Piadina Romagnola con Squacquerone e Rucola",
+                  "recipeId": "rec_6"
+                }
+              ]
+            },
+            "cena": {
+              "type": "together",
+              "togetherDishes": [
+                {
+                  "id": "d_mar_c",
+                  "name": "Risotto alla Zucca Mantovana e Rosmarino",
+                  "recipeId": "rec_1"
+                }
+              ],
+              "danieleDishes": [],
+              "partnerDishes": []
+            }
+          },
+          "mer": {
+            "dayKey": "mer",
+            "dayLabel": "Mercoledì",
+            "pranzo": {
+              "type": "separate",
+              "togetherDishes": [],
+              "danieleDishes": [
+                {
+                  "id": "d_mer_pd",
+                  "name": "Petto di Pollo al Limone con Carote",
+                  "recipeId": "rec_14"
+                }
+              ],
+              "partnerDishes": [
+                {
+                  "id": "d_mer_pp",
+                  "name": "Zuppa di Farro, Ceci e Zucca",
+                  "recipeId": "rec_9"
+                }
+              ]
+            },
+            "cena": {
+              "type": "together",
+              "togetherDishes": [
+                {
+                  "id": "d_mer_c",
+                  "name": "Vellutata di Funghi Porcini e Crostini",
+                  "recipeId": "rec_2"
+                }
+              ],
+              "danieleDishes": [],
+              "partnerDishes": []
+            }
+          },
+          "gio": {
+            "dayKey": "gio",
+            "dayLabel": "Giovedì",
+            "pranzo": {
+              "type": "together",
+              "togetherDishes": [
+                {
+                  "id": "d_gio_p",
+                  "name": "Gnocchi di Patate al Sugo Fresco e Basilico",
+                  "recipeId": "rec_8"
+                }
+              ],
+              "danieleDishes": [],
+              "partnerDishes": []
+            },
+            "cena": {
+              "type": "separate",
+              "togetherDishes": [],
+              "danieleDishes": [
+                {
+                  "id": "d_gio_cd",
+                  "name": "Bistecca di Manzo ai ferri con insalata"
+                }
+              ],
+              "partnerDishes": [
+                {
+                  "id": "d_gio_cp",
+                  "name": "Tortino Rustico di Verdure e Ricotta",
+                  "recipeId": "rec_15"
+                }
+              ]
+            }
+          },
+          "ven": {
+            "dayKey": "ven",
+            "dayLabel": "Venerdì",
+            "pranzo": {
+              "type": "separate",
+              "togetherDishes": [],
+              "danieleDishes": [
+                {
+                  "id": "d_ven_pd",
+                  "name": "Toast integrale con uovo e avocado"
+                }
+              ],
+              "partnerDishes": [
+                {
+                  "id": "d_ven_pp",
+                  "name": "Insalata mista con feta e noci"
+                }
+              ]
+            },
+            "cena": {
+              "type": "together",
+              "togetherDishes": [
+                {
+                  "id": "d_ven_c",
+                  "name": "Pinsa Romana Margherita con Burrata",
+                  "recipeId": "rec_10"
+                }
+              ],
+              "danieleDishes": [],
+              "partnerDishes": []
+            }
+          },
+          "sab": {
+            "dayKey": "sab",
+            "dayLabel": "Sabato",
+            "pranzo": {
+              "type": "together",
+              "togetherDishes": [
+                {
+                  "id": "d_sab_p",
+                  "name": "Spaghetti alle Vongole Veraci",
+                  "recipeId": "rec_5"
+                }
+              ],
+              "danieleDishes": [],
+              "partnerDishes": []
+            },
+            "cena": {
+              "type": "together",
+              "togetherDishes": [
+                {
+                  "id": "d_sab_c",
+                  "name": "Tagliere sfizioso di formaggi, olive e focaccia calda"
+                }
+              ],
+              "danieleDishes": [],
+              "partnerDishes": []
+            }
+          },
+          "dom": {
+            "dayKey": "dom",
+            "dayLabel": "Domenica",
+            "pranzo": {
+              "type": "together",
+              "togetherDishes": [
+                {
+                  "id": "d_dom_p",
+                  "name": "Lasagne Tradizionali della Domenica",
+                  "recipeId": "rec_7"
+                }
+              ],
+              "danieleDishes": [],
+              "partnerDishes": []
+            },
+            "cena": {
+              "type": "together",
+              "togetherDishes": [
+                {
+                  "id": "d_dom_c",
+                  "name": "Minestrone leggero autunnale con crostoni"
+                }
+              ],
+              "danieleDishes": [],
+              "partnerDishes": []
+            }
+          }
+        }
+      }
+    },
+    "shoppingList": [
+      {
+        "id": "sp_1",
+        "name": "Zucca Mantovana",
+        "category": "ortofrutta",
+        "assignee": "together",
+        "dishName": "Risotto alla Zucca",
+        "dayKey": "mar",
+        "isDone": false,
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_2",
+        "name": "Funghi porcini",
+        "category": "ortofrutta",
+        "assignee": "together",
+        "dishName": "Vellutata di Funghi",
+        "dayKey": "mer",
+        "isDone": false,
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_3",
+        "name": "Pomodorini ciliegino",
+        "category": "ortofrutta",
+        "assignee": "together",
+        "dishName": "Pasta al Pesto",
+        "dayKey": "lun",
+        "isDone": true,
+        "checkedBy": "Daniele",
+        "checkedAt": "2026-10-21T17:29:15.687Z",
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_4",
+        "name": "Basilico fresco",
+        "category": "ortofrutta",
+        "assignee": "together",
+        "dishName": "Gnocchi al Sugo",
+        "dayKey": "gio",
+        "isDone": false,
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_5",
+        "name": "Rucola fresca",
+        "category": "ortofrutta",
+        "assignee": "partner",
+        "dishName": "Piadina Romagnola",
+        "dayKey": "mar",
+        "isDone": false,
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_6",
+        "name": "Limoni biologici",
+        "category": "ortofrutta",
+        "assignee": "together",
+        "dishName": "Salmone al Forno",
+        "dayKey": "lun",
+        "isDone": true,
+        "checkedBy": "Partner",
+        "checkedAt": "2026-10-21T17:29:15.687Z",
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_7",
+        "name": "Filetto di salmone fresco",
+        "category": "macelleria_pescheria",
+        "assignee": "together",
+        "dishName": "Salmone al Forno",
+        "dayKey": "lun",
+        "isDone": true,
+        "checkedBy": "Daniele",
+        "checkedAt": "2026-10-21T17:29:15.687Z",
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_8",
+        "name": "Bistecca di manzo",
+        "category": "macelleria_pescheria",
+        "assignee": "daniele",
+        "dishName": "Bistecca ai ferri",
+        "dayKey": "gio",
+        "isDone": false,
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_9",
+        "name": "Vongole veraci",
+        "category": "macelleria_pescheria",
+        "assignee": "together",
+        "dishName": "Spaghetti alle Vongole",
+        "dayKey": "sab",
+        "isDone": false,
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_10",
+        "name": "Macinato misto per ragù",
+        "category": "macelleria_pescheria",
+        "assignee": "together",
+        "dishName": "Lasagne della Domenica",
+        "dayKey": "dom",
+        "isDone": false,
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_11",
+        "name": "Squacquerone DOP",
+        "category": "latticini_freschi",
+        "assignee": "partner",
+        "dishName": "Piadina Romagnola",
+        "dayKey": "mar",
+        "isDone": false,
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_12",
+        "name": "Parmigiano Reggiano 24 mesi",
+        "category": "latticini_freschi",
+        "assignee": "together",
+        "dishName": "Risotto e Pasta",
+        "dayKey": "lun",
+        "isDone": false,
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_13",
+        "name": "Burrata pugliese",
+        "category": "latticini_freschi",
+        "assignee": "together",
+        "dishName": "Pinsa Romana",
+        "dayKey": "ven",
+        "isDone": false,
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_14",
+        "name": "Pasta corta rigata",
+        "category": "dispensa_secco",
+        "assignee": "together",
+        "dishName": "Pasta al Pesto",
+        "dayKey": "lun",
+        "isDone": true,
+        "checkedBy": "Daniele",
+        "checkedAt": "2026-10-21T17:29:15.687Z",
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_15",
+        "name": "Riso Carnaroli",
+        "category": "dispensa_secco",
+        "assignee": "together",
+        "dishName": "Risotto alla Zucca",
+        "dayKey": "mar",
+        "isDone": false,
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_16",
+        "name": "Olio EVO buono",
+        "category": "dispensa_secco",
+        "assignee": "together",
+        "dishName": "Base cucina",
+        "isDone": false,
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_17",
+        "name": "Farro perlato",
+        "category": "dispensa_secco",
+        "assignee": "partner",
+        "dishName": "Zuppa di Farro",
+        "dayKey": "mer",
+        "isDone": false,
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_18",
+        "name": "Detersivo piatti ecologico",
+        "category": "cura_casa_altro",
+        "assignee": "together",
+        "dishName": "Fuori lista",
+        "isDone": false,
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      },
+      {
+        "id": "sp_19",
+        "name": "Carta da forno",
+        "category": "cura_casa_altro",
+        "assignee": "together",
+        "dishName": "Fuori lista",
+        "isDone": false,
+        "createdAt": "2026-10-21T17:29:15.687Z"
+      }
+    ],
+    "recipes": [
+      {
+        "id": "rec_1",
+        "name": "Risotto alla Zucca Mantovana e Rosmarino",
+        "season": "autumn",
+        "category": "Primo",
+        "prepTime": "30 min",
+        "ingredients": [
+          "Riso Carnaroli",
+          "Zucca Mantovana",
+          "Cipolla dorata",
+          "Brodo vegetale",
+          "Parmigiano Reggiano",
+          "Rosmarino fresco",
+          "Burro"
+        ],
+        "notes": "Mantecare a fuoco spento con burro freddo e parmigiano.",
+        "lastPreparedDate": "2026-10-02"
+      },
+      {
+        "id": "rec_2",
+        "name": "Vellutata di Funghi Porcini e Crostini",
+        "season": "autumn",
+        "category": "Primo",
+        "prepTime": "25 min",
+        "ingredients": [
+          "Funghi porcini",
+          "Patate",
+          "Porro",
+          "Pane casereccio",
+          "Olio EVO",
+          "Prezzemolo"
+        ],
+        "notes": "Ottima calda con crostini tostati con un filo d'olio.",
+        "lastPreparedDate": "2026-10-14"
+      },
+      {
+        "id": "rec_3",
+        "name": "Filetto di Salmone al Forno con Patate",
+        "season": "all_year",
+        "category": "Secondo",
+        "prepTime": "30 min",
+        "ingredients": [
+          "Filetto di salmone fresco",
+          "Patate",
+          "Rosmarino fresco",
+          "Limoni",
+          "Olio EVO",
+          "Aglio"
+        ],
+        "lastPreparedDate": "2026-10-08"
+      },
+      {
+        "id": "rec_4",
+        "name": "Pasta al Pesto Genovese e Pomodorini",
+        "season": "all_year",
+        "category": "Primo",
+        "prepTime": "15 min",
+        "ingredients": [
+          "Pasta corta rigata",
+          "Pesto alla genovese",
+          "Pomodorini",
+          "Parmigiano Reggiano",
+          "Olio EVO"
+        ],
+        "lastPreparedDate": "2026-09-28"
+      },
+      {
+        "id": "rec_5",
+        "name": "Spaghetti alle Vongole Veraci",
+        "season": "all_year",
+        "category": "Primo",
+        "prepTime": "20 min",
+        "ingredients": [
+          "Spaghetti trafilati al bronzo",
+          "Vongole veraci",
+          "Aglio",
+          "Prezzemolo",
+          "Vino bianco secco",
+          "Peperoncino",
+          "Olio EVO"
+        ],
+        "lastPreparedDate": "2026-09-15"
+      },
+      {
+        "id": "rec_6",
+        "name": "Piadina Romagnola con Squacquerone e Rucola",
+        "season": "all_year",
+        "category": "Piatto Unico",
+        "prepTime": "10 min",
+        "ingredients": [
+          "Piadina romagnola",
+          "Squacquerone",
+          "Rucola",
+          "Prosciutto crudo"
+        ],
+        "lastPreparedDate": "2026-10-11"
+      },
+      {
+        "id": "rec_7",
+        "name": "Lasagne Tradizionali della Domenica",
+        "season": "autumn",
+        "category": "Primo",
+        "prepTime": "60 min",
+        "ingredients": [
+          "Sfoglie per lasagne all'uovo",
+          "Macinato misto per ragù",
+          "Passata di pomodoro",
+          "Besciamella",
+          "Parmigiano Reggiano",
+          "Carota",
+          "Sedano",
+          "Cipolla"
+        ],
+        "lastPreparedDate": "2026-09-20"
+      },
+      {
+        "id": "rec_8",
+        "name": "Gnocchi di Patate al Sugo Fresco e Basilico",
+        "season": "all_year",
+        "category": "Primo",
+        "prepTime": "20 min",
+        "ingredients": [
+          "Gnocchi di patate",
+          "Passata di pomodoro",
+          "Mozzarella fior di latte",
+          "Basilico fresco",
+          "Parmigiano Reggiano",
+          "Olio EVO"
+        ],
+        "lastPreparedDate": "2026-10-06"
+      },
+      {
+        "id": "rec_9",
+        "name": "Zuppa di Farro, Ceci e Zucca",
+        "season": "autumn",
+        "category": "Piatto Unico",
+        "prepTime": "35 min",
+        "ingredients": [
+          "Farro perlato",
+          "Ceci cotti",
+          "Zucca Mantovana",
+          "Carota",
+          "Rosmarino fresco",
+          "Olio EVO"
+        ],
+        "lastPreparedDate": "2026-09-18"
+      },
+      {
+        "id": "rec_10",
+        "name": "Pinsa Romana Margherita con Burrata",
+        "season": "all_year",
+        "category": "Piatto Unico",
+        "prepTime": "15 min",
+        "ingredients": [
+          "Base pinsa romana precotta",
+          "Passata di pomodoro",
+          "Burrata fresca",
+          "Basilico fresco",
+          "Olio EVO"
+        ],
+        "lastPreparedDate": "2026-10-12"
+      },
+      {
+        "id": "rec_11",
+        "name": "Risotto agli Asparagi e Robiola",
+        "season": "spring",
+        "category": "Primo",
+        "prepTime": "30 min",
+        "ingredients": [
+          "Riso Carnaroli",
+          "Asparagi freschi",
+          "Robiola fresca",
+          "Scalogno",
+          "Brodo vegetale",
+          "Parmigiano Reggiano"
+        ],
+        "lastPreparedDate": "2026-05-10"
+      },
+      {
+        "id": "rec_12",
+        "name": "Insalata di Riso Mediterranea",
+        "season": "summer",
+        "category": "Piatto Unico",
+        "prepTime": "20 min",
+        "ingredients": [
+          "Riso per insalate",
+          "Tonno sott'olio",
+          "Olive nere",
+          "Pomodorini",
+          "Mais dolce",
+          "Uova fresche",
+          "Olio EVO"
+        ],
+        "lastPreparedDate": "2026-07-22"
+      },
+      {
+        "id": "rec_13",
+        "name": "Pizzoccheri Valtellinesi con Verza e Patate",
+        "season": "winter",
+        "category": "Primo",
+        "prepTime": "40 min",
+        "ingredients": [
+          "Pizzoccheri grano saraceno",
+          "Verza",
+          "Patate",
+          "Formaggio Casera o Fontina",
+          "Burro",
+          "Aglio",
+          "Salvia"
+        ],
+        "lastPreparedDate": "2026-01-14"
+      },
+      {
+        "id": "rec_14",
+        "name": "Pollo al Limone e Timo con Carote",
+        "season": "all_year",
+        "category": "Secondo",
+        "prepTime": "25 min",
+        "ingredients": [
+          "Petto di pollo",
+          "Limoni",
+          "Timo fresco",
+          "Carote",
+          "Vino bianco secco",
+          "Olio EVO"
+        ],
+        "lastPreparedDate": "2026-10-09"
+      },
+      {
+        "id": "rec_15",
+        "name": "Tortino Rustico di Verdure e Ricotta",
+        "season": "all_year",
+        "category": "Piatto Unico",
+        "prepTime": "35 min",
+        "ingredients": [
+          "Pasta sfoglia rotonda",
+          "Ricotta fresca",
+          "Uova fresche",
+          "Zucchine",
+          "Parmigiano Reggiano"
+        ],
+        "lastPreparedDate": "2026-10-04"
+      }
+    ],
+    "updatedAt": "2026-10-21T17:29:39.321Z"
+  }
+}

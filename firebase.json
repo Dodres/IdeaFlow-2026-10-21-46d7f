@@ -1,0 +1,8 @@
+{
+  "firestore": {
+    "databaseId": "ai-studio-ideaflow-cdd35663-1681-4cae-907e-a5de32ff2712",
+    "rules": "firestore.rules",
+    "edition": "ENTERPRISE",
+    "dataAccessMode": "FIRESTORE_NATIVE"
+  }
+}

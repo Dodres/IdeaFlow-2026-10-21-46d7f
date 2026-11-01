@@ -1,0 +1,49 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with their joined or created households",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique Firebase User ID" },
+        "email": { "type": "string", "description": "User email address" },
+        "displayName": { "type": "string", "description": "Display name" },
+        "photoURL": { "type": "string", "description": "Avatar photo URL" },
+        "households": { "type": "array", "description": "List of household codes the user belongs to" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["uid", "displayName"]
+    },
+    "Household": {
+      "title": "Household",
+      "description": "Collaborative shared household with menu, shopping, members, and recipes",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string", "description": "Unique 6-10 character code" },
+        "name": { "type": "string", "description": "Household display name" },
+        "ownerUid": { "type": "string", "description": "UID of the creator" },
+        "ownerEmail": { "type": "string", "description": "Email of the creator" },
+        "memberUids": { "type": "array", "description": "UIDs of authorized members" },
+        "members": { "type": "array", "description": "Configured meal persons (Daniele, Partner, etc.)" },
+        "houses": { "type": "array", "description": "Physical locations (Casa Daniele, Casa Partner)" },
+        "weeklyPlans": { "type": "object", "description": "Weekly meal plans keyed by weekId" },
+        "shoppingList": { "type": "array", "description": "Collaborative shopping items" },
+        "recipes": { "type": "array", "description": "Saved recipe collection" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["code", "name", "ownerUid"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Personal user profiles and their saved households"
+    },
+    "/households/{householdCode}": {
+      "schema": "Household",
+      "description": "Shared households containing menu, shopping list, recipes and members"
+    }
+  }
+}
